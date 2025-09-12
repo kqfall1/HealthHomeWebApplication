@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logs</title>
+	<link rel="icon" type="image/png" href="/static/logo.png">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* Ensures the body spans the full height of the viewport */
+        }
+        header {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #8B0000; /* Dark red background color */
+            color: white;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 32px;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+        }
+        header h1 img {
+            margin-left: 10px;
+            width: 50px;
+            height: 50px;
+        }
+        nav {
+            margin-left: auto;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 18px;
+        }
+        .content-wrapper {
+            background-image: url('/static/textPageBackground.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            flex-grow: 1; /* Fills the remaining space between header and footer */
+            display: flex; /* Sets up a flex container */
+            justify-content: center; /* Centers horizontally */
+            align-items: center; /* Centers vertically */
+        }
+        .container {
+            padding: 20px;
+            background-color: #B22222;
+            color: white;
+            border-radius: 8px; /* Rounded corners */
+            width: 75%; /* Reduced width */
+            text-align: center; /* Centers text inside the container */
+			margin: 0 0 0 19%;
+        }
+        .buttons {
+            margin-top: 20px; /* Adds space above the buttons */
+			margin-bottom: 30px;
+            display: flex; /* Aligns buttons horizontally */
+            justify-content: center; /* Centers buttons */
+            gap: 20px; /* Adds space between buttons */
+        }
+        .buttons button {
+            background-color: #8B0000; /* Dark red background color */
+            color: white;
+            padding: 15px 30px; /* Comfortable button size */
+            font-size: 18px; /* Standard font size */
+            border: none;
+            cursor: pointer;
+            border-radius: 8px; /* Rounded corners for buttons */
+        }
+        .buttons button:hover {
+            background-color: #5A0000; /* Darker red for hover effect */
+        }
+        footer {
+            background-color: #8B0000; /* Dark red background color */
+            padding: 20px;
+            text-align: center;
+            color: white;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>
+            Health Home
+            <img src="/static/logo.png" alt="Health Home Logo">
+        </h1>
+        <nav>
+            {% if 'user_id' in session %}
+                {% if session['role'] == 'gym-goer' %}
+					<a href="/">Home</a>
+					<a href="/bmi/">BMI</a>
+					<a href="/logout/">Log Out</a>
+				{% elif session['role'] == 'athlete' %}
+					<a href="/">Home</a>
+					<a href="/bmi/">BMI</a>
+					<a href="/view-trainers/">View Trainers</a>
+					<a href="/goals/">Goals</a>
+					<a href="/messages/">Messages</a>
+                    <a href="/logout/">Log Out</a>
+				{% endif %}
+			{% endif %}
+        </nav>
+    </header>
+    <div class="content-wrapper">
+        <div class="container">
+            <h1>User Logs</h1>
+            <div class="buttons">
+                <button onclick="location.href='/add-workout-log/'">Add Workout Log</button>
+                <button onclick="location.href='/add-diet-log/'">Add Diet Log</button>
+                <button onclick="location.href='/view-workout-logs/'">View Workout Logs</button>
+                <button onclick="location.href='/view-diet-logs/'">View Diet Logs</button>
+            </div>
+        </div>
+    </div>
+    <footer>
+        © Health Home 2025
+    </footer>
+</body>
+</html>

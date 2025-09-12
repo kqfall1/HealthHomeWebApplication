@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log In</title>
+	<link rel="icon" type="image/png" href="/static/logo.png">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: url("/static/registerBackground.avif") no-repeat center center fixed; /* Same background as register.html */
+            background-size: cover; /* Ensures the image covers the entire background */
+            color: white; /* Ensures text remains visible on the background */
+            display: flex;
+            flex-direction: column; /* Use flexbox to control layout */
+            min-height: 100vh; /* Ensures the body takes up the full viewport height */
+        }
+        header {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #8B0000; /* Dark red background color */
+            color: white;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 32px; /* Same font size as register.html */
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+        }
+        header h1 img {
+            margin-left: 10px;
+            width: 50px; /* Same size for the logo as register.html */
+            height: 50px;
+        }
+        nav {
+            margin-left: auto;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 18px;
+        }
+        main {
+            flex-grow: 1; /* Pushes the footer to the bottom */
+            display: flex;
+            align-items: center; /* Centers the form vertically */
+        }
+        .form-container {
+            position: relative;
+            left: 2%; /* Moves the container to the left */
+            width: 40%;
+            background-color: #B22222;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            color: white;
+        }
+        .form-container h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+        .form-container input {
+            display: block;
+            margin: 10px auto;
+            padding: 10px;
+            width: 80%;
+            font-size: 18px;
+            border: none;
+            border-radius: 4px;
+        }
+        .form-container button {
+            background-color: #8B0000; /* Matches button color in register.html */
+            color: white;
+            padding: 10px 20px;
+            font-size: 18px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .form-container button:hover {
+            background-color: #5A0000; /* Hover effect for button */
+        }
+        footer {
+            background-color: #8B0000; /* Same dark red background color as register.html */
+            padding: 20px;
+            text-align: center;
+            color: white;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>
+            Health Home
+            <img src="/static/logo.png" alt="Health Home Logo">
+        </h1>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/register/">Register</a>
+            <a href="/about/">About</a>
+        </nav>
+    </header>
+    <main>
+        <div class="form-container">
+            <h1>Log In</h1>
+            <form action="/login/" method="post">
+                <input type="email" name="email" placeholder="Enter your email" required>
+                <input type="password" name="password" placeholder="Enter your password" required>
+                <button type="submit">Log In</button>
+            </form>
+        </div>
+    </main>
+	{% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <script>
+                {% for category, message in messages %}
+                    alert("{{ message }}"); // Display alert only if there are messages
+                {% endfor %}
+            </script>
+        {% endif %}
+    {% endwith %}
+    <footer>
+        © Health Home 2025
+    </footer>
+</body>
+</html>

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Home</title>
+	<link rel="icon" type="image/png" href="/static/logo.png">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        header {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #8B0000; /* Dark red background color */
+            color: white;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 32px;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+        }
+        header h1 img {
+            margin-left: 10px;
+            width: 50px;
+            height: 50px;
+        }
+        nav {
+            margin-left: auto;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 18px;
+        }
+        .hero {
+            position: relative;
+            text-align: left;
+            color: white;
+            background-image: url('/static/indexBackground.avif');
+            background-size: cover;
+            background-position: center;
+            height: 500px;
+        }
+        .hero img {
+            width: 100%;
+            height: 500px;
+            object-fit: cover;
+        }
+        .hero .text {
+            position: absolute;
+            top: 50%;
+            left: 2%;
+            transform: translate(0, -50%);
+            background-color: #B22222; /* Moderately dark red */
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center; /* Keeps buttons and text aligned */
+        }
+        .hero h1 {
+            font-size: 48px;
+            margin: 0;
+        }
+        .hero p {
+            font-size: 20px;
+        }
+        .hero .buttons-container {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap; /* Default layout */
+            gap: 10px;
+            justify-content: center; /* Default button alignment */
+        }
+		
+		.hero button { 
+			background-color: #8B0000; /* Dark red background color */
+            color: white;
+            padding: 15px 30px;
+            font-size: 18px;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+		}
+		
+		.gym-goer-text { margin-left: 100px; } 
+		
+        .athlete-text {
+            width: 45%; /* Narrower for athletes */
+            height: 240px; /* Taller for athletes */
+        }
+        
+        .athlete-buttons {
+            display: grid; /* Use grid layout for athletes */
+            grid-template-columns: repeat(3, 1fr); /* Three buttons in the first row */
+            grid-gap: 10px; /* Space between buttons */
+            justify-content: center; /* Center the grid */
+            margin: 20px auto;
+        }
+
+        .athlete-buttons button { 
+            background-color: #8B0000; /* Dark red background color */
+            color: white;
+            padding: 15px 30px;
+            font-size: 18px;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .athlete-buttons button:nth-child(4),
+        .athlete-buttons button:nth-child(5) {
+            grid-column: span 3; /* Span across all columns */
+            justify-self: center; /* Center horizontally within the grid */
+        }
+
+        button:hover {
+            background-color: #5A0000; /* Darker red for hover effect */
+        }
+        footer {
+            background-color: #8B0000;
+            padding: 20px;
+            text-align: center;
+            color: white;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>
+            Health Home
+            <img src="/static/logo.png" alt="Health Home Logo">
+        </h1>
+        <nav>
+            {% if 'user_id' in session %}
+                {% if session['role'] == 'gym-goer' %}
+                    <a href="/bmi/">BMI</a>
+                    <a href="/logs/">Logs</a>
+                    <a href="/logout/">Log Out</a>
+                {% elif session['role'] == 'athlete' %}
+                    <a href="/bmi/">BMI</a>
+                    <a href="/logs/">Logs</a>
+                    <a href="/view-trainers/">View Trainers</a>
+                    <a href="/goals/">Goals</a>
+                    <a href="/messages/">Messages</a>
+                    <a href="/logout/">Log Out</a>
+                {% elif session['role'] == 'trainer' %}
+                    <a href="/my-page/">My Page</a>
+                    <a href="/my-athletes/">My Athletes</a>
+                    <a href="/messages-requests/">Messages/Requests</a>
+                    <a href="/logout/">Log Out</a>
+                {% endif %}
+            {% else %}
+                <a href="/register/">Register</a>
+                <a href="/login/">Log In</a>
+                <a href="/about/">About</a>
+            {% endif %}
+        </nav>
+    </header>
+    <div id="flash-message" style="display: none;" data-message="{{ get_flashed_messages(category_filter=['success'])|first }}"></div>
+    <script>
+        window.onload = function() {
+            const flashMessageContainer = document.getElementById('flash-message');
+            const flashMessage = flashMessageContainer.dataset.message;
+            if (flashMessage) {
+                alert(flashMessage);  // Display the alert
+            }
+        };
+    </script>
+    <div class="hero">
+        <div class="text {% if role == 'athlete' %}athlete-text {% elif role == 'gym-goer' %} gym-goer-text{% endif %}">
+            {% if session['role'] == 'athlete' %}
+                <h1>Welcome Back!</h1>
+                <p>What would you like to do today?</p>
+                <div class="buttons-container {% if role == 'athlete' %}athlete-buttons{% endif %}">
+                    <button onclick="location.href='/bmi/'">BMI</button>
+                    <button onclick="location.href='/logs/'">Logs</button>
+                    <button onclick="location.href='/view-trainers/'">View Trainers</button>
+                    <button onclick="location.href='/goals/'">Goals</button>
+                    <button onclick="location.href='/messages/'">Messages</button>
+                </div>
+            {% elif session['role'] == 'gym-goer' %}
+                <h1>Welcome Back!</h1>
+                <p>What would you like to do today?</p>
+                <div class="buttons">
+                    <button onclick="location.href='/bmi/'">BMI</button>
+                    <button onclick="location.href='/logs/'">Logs</button>
+                </div>
+            {% elif session['role'] == 'trainer' %}
+                <h1>Welcome Back!</h1>
+                <p>What would you like to do today?</p>
+                <div class="buttons">
+                    <button onclick="location.href='/my-page/'">My Page</button>
+                    <button onclick="location.href='/my-athletes/'">My Athletes</button>
+                    <button onclick="location.href='/messages-requests/'">Messages/Requests</button>
+                </div>
+            {% else %}
+                <h1>Track your health with us!</h1>
+                <p>Sign up or log in to start or continue your health journey!</p>
+                <div class="buttons">
+                    <button onclick="location.href='/register/'">Sign Up</button>
+                    <button onclick="location.href='/login/'">Log In</button>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <footer>
+        © Health Home 2025
+    </footer>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Page</title>
+	<link rel="icon" type="image/png" href="/static/logo.png">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* Ensures the body spans the full height of the viewport */
+        }
+        header {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #8B0000; /* Dark red background color */
+            color: white;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 32px;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+        }
+        header h1 img {
+            margin-left: 10px;
+            width: 50px;
+            height: 50px;
+        }
+        nav {
+            margin-left: auto;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 18px;
+        }
+        .content-wrapper {
+            background-image: url('/static/textPageBackground.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            flex-grow: 1; /* Fills the remaining space between header and footer */
+            display: flex; /* Sets up a flex container */
+            justify-content: center; /* Centers horizontally */
+            align-items: center; /* Centers vertically */
+        }
+        .container {
+            padding: 20px;
+            background-color: #B22222;
+            color: white;
+            border-radius: 8px; /* Rounded corners */
+            width: 75%; /* Reduced width */
+            text-align: left; /* Align text to the left */
+            margin: 20px 0 20px 19%;
+        }
+        label {
+            font-size: 20px; /* Smaller than <h1> heading */
+            font-weight: bold;
+        }
+        input[type="text"], textarea {
+            width: calc(100% - 20px); /* Makes input fields responsive */
+            margin-top: 10px;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            font-size: 16px;
+            box-sizing: border-box; /* Includes padding and border in the width */
+        }
+        textarea {
+            resize: vertical; /* Allows vertical resizing only */
+        }
+        .button-container {
+            text-align: center; /* Centers the button horizontally */
+            margin-top: 20px; /* Adds space above the button */
+        }
+        .button-container button {
+            background-color: #8B0000; /* Dark red background color */
+            color: white;
+            padding: 15px 30px; /* Comfortable button size */
+            font-size: 18px; /* Standard font size */
+            border: none;
+            cursor: pointer;
+            border-radius: 8px; /* Rounded corners for the button */
+        }
+        .button-container button:hover {
+            background-color: #5A0000; /* Darker red for hover effect */
+        }
+        footer {
+            background-color: #8B0000; /* Dark red background color */
+            padding: 20px;
+            text-align: center;
+            color: white;
+            font-size: 16px;
+        }
+		
+		input::placeholder,
+		textarea::placeholder {
+			font-family: Arial, sans-serif;
+			font-size: 16px;
+			color: #aaa;
+		}
+		
+		input[type="text"], textarea {
+			font-family: Arial, sans-serif; /* Use the same font */
+			font-size: 16px; /* Same size for text */
+			font-weight: normal; /* Ensures consistency in font weight */
+		}
+
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1>
+            Health Home
+            <img src="/static/logo.png" alt="Health Home Logo">
+        </h1>
+        <nav>
+            <a href="/">Home</a>
+			<a href="/my-athletes/">My Athletes</a>
+			<a href="/messages-requests/">Messages/Requests</a>
+            <a href="/logout/">Log Out</a>
+        </nav>
+    </header>
+    <div class="content-wrapper">
+        <div class="container">
+            <form action="/save-trainer-page/" method="POST">
+				<label for="name">Full Name:</label>
+				<input type="text" id="name" name="name" placeholder="Enter your full name">
+    
+				<label for="credentials">Credentials:</label>
+				<textarea id="credentials" name="credentials" rows="3" placeholder="Enter your credentials..."></textarea>
+    
+				<label for="trainingStyle">Training Style:</label>
+				<textarea id="trainingStyle" name="trainingStyle" rows="6" placeholder="Describe your training style..."></textarea>
+    
+				<div class="button-container">
+					<button type="submit">Add/Edit Page</button>
+				</div>
+			</form>
+        </div>
+    </div>
+    <footer>
+        © Health Home 2025
+    </footer>
+	<script>
+    document.querySelector("form").addEventListener("submit", async function(event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        // Prepare the form data
+        const formData = new FormData(this);
+
+        try {
+            const response = await fetch('/save-trainer-page/', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+
+            // Display a success or error alert based on the server response
+            if (response.ok) {
+                alert(result.message); // Show success message
+                // Redirect to myPage.html after successful operation
+                window.location.href = '/my-page/';
+            } else {
+                alert("Error: " + result.message); // Show error message
+            }
+        } catch (error) {
+            alert("An unexpected error occurred."); // Fallback for unexpected issues
+            console.error("Error saving trainer page:", error);
+        }
+    });
+</script>
+</body>
+</html>

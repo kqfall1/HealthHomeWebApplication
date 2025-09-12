@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMI Calculator</title>
+	<link rel="icon" type="image/png" href="/static/logo.png">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-image: url('/static/bmi.avif'); /* Set the background image */
+            background-size: cover; /* Ensure the image covers the entire background */
+            background-position: center; /* Center the image */
+            background-repeat: no-repeat; /* Prevent the image from tiling */
+        }
+        header {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #8B0000;
+            color: white;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 32px;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+        }
+        header h1 img {
+            margin-left: 10px;
+            width: 50px;
+            height: 50px;
+        }
+        nav {
+            margin-left: auto;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 18px;
+        }
+        .hero {
+            flex-grow: 1;
+            text-align: left;
+            color: white;
+            padding: 20px; /* Adds spacing around content */
+        }
+        .hero .text {
+            background-color: #B22222;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px; /* Space below the header */
+            margin-bottom: 20px; /* Space above the footer */
+            max-width: 600px; /* Prevents the element from stretching */
+        }
+        .hero h1 {
+            font-size: 48px;
+            margin: 0;
+			text-align: center;
+        }
+        .hero p {
+            font-size: 20px;
+        }
+        .hero .form {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .hero .form label {
+            font-size: 18px;
+        }
+        .hero .form input {
+            padding: 10px;
+            font-size: 18px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            width: 560px; /* Matches button width */
+        }
+        .hero .form button {
+            background-color: #8B0000;
+            color: white;
+            padding: 10px 40px;
+            font-size: 22px;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+			width: 581px; 
+        }
+        .hero .form button:hover {
+            background-color: #5A0000;
+        }
+        .hero .history-button {
+            background-color: #8B0000;
+            color: white;
+            padding: 10px 40px; /* Matches the "Calculate" button size */
+            font-size: 22px;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-top: 10px; /* Adds space between the buttons */
+			width: 581px;
+        }
+        .hero .history-button:hover {
+            background-color: #5A0000;
+        }
+        #bmi-result {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+        }
+        footer {
+            background-color: #8B0000;
+            padding: 20px;
+            text-align: center;
+            color: white;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>
+            Health Home
+            <img src="/static/logo.png" alt="Health Home Logo">
+        </h1>
+        <nav>
+			{% if 'user_id' in session %}
+                {% if session['role'] == 'gym-goer' %}
+					<a href="/">Home</a>
+					<a href="/logs/">Logs</a>
+					<a href="/logout/">Log Out</a>
+				{% elif session['role'] == 'athlete' %}
+					<a href="/">Home</a>
+                    <a href="/logs/">Logs</a>
+					<a href="/view-trainers/">View Trainers</a>
+					<a href="/goals/">Goals</a>
+					<a href="/messages/">Messages</a>
+                    <a href="/logout/">Log Out</a>
+				{% endif %}
+			{% endif %}
+        </nav>
+    </header>
+    <div class="hero">
+        <div class="text">
+            <h1>Calculate Your BMI</h1>
+            <p>Enter your details below to calculate your Body Mass Index (BMI).</p>
+            <form class="form" action="/bmi/" method="POST">
+                <label for="weight">Weight (lbs):</label>
+                <input type="number" id="weight" name="weight" required>
+
+                <label for="height-feet">Height (feet):</label>
+                <input type="number" id="height-feet" name="height-feet" required>
+
+                <label for="height-inches">Height (inches):</label>
+                <input type="number" id="height-inches" name="height-inches" required>
+
+                <button type="submit">Calculate</button>
+            </form>
+            
+            <!-- "BMI Calculation History" button with matching size and spacing -->
+            <button onclick="location.href='/bmi-history/'" class="history-button">BMI Calculation History</button>
+            
+            <div id="bmi-result"></div>
+        </div>
+    </div>
+    <footer>
+        © Health Home 2025
+    </footer>
+    <script>
+		document.querySelector('.form').addEventListener('submit', function (event) {
+			event.preventDefault(); // Prevent the default form submission
+
+        // Collect form data
+        const formData = new FormData(event.target);
+
+        // Send POST request to the server
+        fetch('/bmi/', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.bmi) {
+                // Display the BMI result
+                const bmiResultDiv = document.getElementById('bmi-result');
+                bmiResultDiv.innerText = `Your BMI is ${data.bmi}`;
+                bmiResultDiv.style.display = 'block'; // Show the result
+            } else {
+                console.error('Error: BMI not calculated properly');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+		});
+</script>
+
+</body>
+</html>

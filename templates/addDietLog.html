@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Diet Log</title>
+  <link rel="icon" type="image/png" href="/static/logo.png">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh; /* Ensures the body spans the full height of the viewport */
+    }
+    header {
+      display: flex;
+      align-items: center;
+      padding: 10px 20px;
+      background-color: #8B0000; /* Dark red background color */
+      color: white;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 32px;
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+    }
+    header h1 img {
+      margin-left: 10px;
+      width: 50px;
+      height: 50px;
+    }
+    nav {
+      margin-left: auto;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin: 0 10px;
+      font-size: 18px;
+    }
+    .content-wrapper {
+      background-image: url('/static/textPageBackground.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      flex-grow: 1; /* Fills the remaining space between header and footer */
+      display: flex; /* Sets up a flex container */
+      justify-content: center; /* Centers horizontally */
+      align-items: center; /* Centers vertically */
+    }
+    .container {
+      padding: 20px;
+      background-color: #B22222;
+      color: white;
+      border-radius: 8px; /* Rounded corners */
+      width: 75%; /* Reduced width */
+      height: 515px; /* Increased height for taller container */
+      text-align: center; /* Centers text inside the container */
+      margin: 20px 0 20px 20%; /* Equal spacing above and below the container */
+    }
+    .form-container {
+      margin-top: 20px; /* Adds space above the form */
+    }
+    .textarea-container textarea {
+      width: calc(100% - 40px); /* Adjusts width to account for container padding (20px on each side) */
+      height: 350px; /* Adjust the height as needed */
+      border-radius: 8px; /* Rounded corners for textarea */
+      border: none;
+      padding: 10px;
+      font-size: 16px;
+      font-family: Arial, sans-serif;
+      box-sizing: border-box; /* Includes padding and border in width calculation */
+      margin-bottom: 20px; /* Adds space below the textarea */
+    }
+    .button-container button {
+      background-color: #8B0000; /* Dark red background color */
+      color: white;
+      padding: 15px 30px; /* Comfortable button size */
+      font-size: 18px; /* Standard font size */
+      border: none;
+      cursor: pointer;
+      border-radius: 8px; /* Rounded corners for the button */
+    }
+    .button-container button:hover {
+      background-color: #5A0000; /* Darker red for hover effect */
+    }
+    footer {
+      background-color: #8B0000; /* Dark red background color */
+      padding: 20px;
+      text-align: center;
+      color: white;
+      font-size: 16px;
+    }
+    input::placeholder,
+    textarea::placeholder {
+      font-family: Arial, sans-serif;
+      font-size: 16px;
+      color: #aaa;
+    }
+    input[type="text"],
+    textarea {
+      font-family: Arial, sans-serif; /* Use the same font */
+      font-size: 16px; /* Same size for text */
+      font-weight: normal; /* Ensures consistency in font weight */
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>
+      Health Home
+      <img src="/static/logo.png" alt="Health Home Logo">
+    </h1>
+    <nav>
+      {% if 'user_id' in session %}
+        {% if session['role'] == 'gym-goer' %}
+          <a href="/">Home</a>
+          <a href="/bmi/">BMI</a>
+          <a href="/logs/">Logs</a>
+          <a href="/logout/">Log Out</a>
+        {% elif session['role'] == 'athlete' %}
+          <a href="/">Home</a>
+          <a href="/bmi/">BMI</a>
+          <a href="/logs/">Logs</a>
+          <a href="/view-trainers/">View Trainers</a>
+          <a href="/goals/">Goals</a>
+          <a href="/messages/">Messages</a>
+          <a href="/logout/">Log Out</a>
+        {% endif %}
+      {% endif %}
+    </nav>
+  </header>
+  <div class="content-wrapper">
+    <div class="container">
+      <h1>What Did You Eat Today?</h1>
+      <form class="form-container" method="post" action="/add-diet-log/">
+        <div class="textarea-container">
+          <textarea id="dietLog" name="diet_log" placeholder="Write about your diet here..."></textarea>
+        </div>
+        <div class="button-container">
+          <button type="submit">Add Log</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <footer>
+    © Health Home 2025
+  </footer>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.querySelector('.form-container');
+      if (!form) {
+        console.error('Form element not found!');
+        return;
+      }
+      const dietLogInput = document.getElementById('dietLog');
+      if (!dietLogInput) {
+        console.error('Diet log textarea not found!');
+        return;
+      }
+      form.addEventListener('submit', async function(event) {
+        event.preventDefault(); // Prevent default form submission
+        
+        const dietLog = dietLogInput.value.trim();
+        if (!dietLog) {
+          alert('Please add text to your diet log before submitting.');
+          return;
+        }
+        
+        try {
+          const response = await fetch('/add-diet-log/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({ diet_log: dietLog })
+          });
+          
+          // Log the server response for debugging.
+          const result = await response.json();
+          console.log('Response JSON:', result);
+          
+          alert(result.message); // Alert the user with the returned message
+          
+          // If the submission was successful, redirect to /logs/
+          if (result.success) {
+            window.location.href = '/logs/';
+          }
+        } catch (error) {
+          console.error('Error during fetch:', error);
+          alert('An error occurred. Please try again later.');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

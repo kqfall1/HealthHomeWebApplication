@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reply</title>
+	<link rel="icon" type="image/png" href="/static/logo.png">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #8B0000;
+            color: white;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 32px;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+        }
+        header h1 img {
+            margin-left: 10px;
+            width: 50px;
+            height: 50px;
+        }
+        nav {
+            margin-left: auto;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 18px;
+        }
+        .content-wrapper {
+            background-image: url('/static/textPageBackground.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            padding: 20px;
+            background-color: #B22222;
+            color: white;
+            border-radius: 8px;
+            width: 75%;
+            min-height: 515px;
+            text-align: center;
+            margin: 20px 0 20px 19%;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        label {
+            font-size: 18px;
+            margin-bottom: 10px;
+            display: block;
+        }
+        textarea {
+            width: calc(100% - 20px); /* Ensures spacing from both edges */
+            height: 350px;
+            margin: 0 auto;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            font-size: 16px;
+            box-sizing: border-box; /* Includes padding in the width calculation */
+        }
+        button {
+            background-color: #8B0000;
+            color: white;
+            padding: 10px 20px;
+            font-size: 18px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 20px;
+            width: 150px;
+        }
+        .button:hover {
+            background-color: #5A0000;
+        }
+        footer {
+            background-color: #8B0000;
+            padding: 20px;
+            text-align: center;
+            color: white;
+            font-size: 16px;
+        }
+        input::placeholder,
+        textarea::placeholder {
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            color: #aaa;
+        }
+        input[type="text"], textarea {
+            font-family: Arial, sans-serif; /* Use the same font */
+            font-size: 16px; /* Same size for text */
+            font-weight: normal; /* Ensures consistency in font weight */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>
+            Health Home
+            <img src="/static/logo.png" alt="Health Home Logo">
+        </h1>
+        <nav>
+            <a href="/bmi/">BMI</a>
+            <a href="/logs/">Logs</a>
+            <a href="/view-trainers/">View Trainers</a>
+            <a href="/goals/">Goals</a>
+			<a href="/messages/">Messages</a>
+            <a href="/logout/">Log Out</a>
+        </nav>
+    </header>
+
+    <div class="content-wrapper">
+        <div class="container">
+            <h1>Reply to {{ sender_email }}</h1>
+            <form action="/send-reply/" id="send-reply" method="POST">
+                <textarea id="reply-message" name="reply_message" placeholder="Type your message here..." required></textarea>
+                <button type="submit" class="button">Send Reply</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        © Health Home 2025
+    </footer>
+
+    <script>
+        document.getElementById('send-reply').addEventListener('submit', async (event) => {
+            event.preventDefault(); // Prevent the default form submission behavior
+
+            const replyMessage = document.getElementById('reply-message').value;
+            const recipientEmail = "{{ sender_email }}"; // Get the recipient email from the template
+
+            try {
+                const response = await fetch('/send-reply/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        reply_message: replyMessage,
+                        recipient_email: recipientEmail,
+                    }),
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    alert(result.message || 'Reply sent successfully!');
+                    window.location.href = '/messages/'; // Redirect to messages page
+                } else {
+                    const errorResult = await response.json();
+                    alert(`Error: ${errorResult.error || 'Unable to send reply.'}`);
+                }
+            } catch (error) {
+                console.error('Error sending reply:', error);
+                alert('An unexpected error occurred.');
+            }
+        });
+    </script>
+</body>
+</html>

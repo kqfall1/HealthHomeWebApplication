@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Set Goals</title>
+    <link rel="icon" type="image/png" href="/static/logo.png">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #8B0000;
+            color: white;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 32px;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+        }
+        header h1 img {
+            margin-left: 10px;
+            width: 50px;
+            height: 50px;
+        }
+        nav {
+            margin-left: auto;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 18px;
+        }
+        .content-wrapper {
+            background-image: url('/static/textPageBackground.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            padding: 20px;
+            background-color: #B22222;
+            color: white;
+            border-radius: 8px;
+            width: 75%;
+            min-height: 485px;
+            text-align: center;
+            margin: 20px 0 20px 19%;
+        }
+        textarea {
+            width: calc(100% - 20px);
+            height: 300px;
+            margin: 10px auto;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #8B0000;
+            color: white;
+            padding: 10px 20px;
+            font-size: 18px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 20px;
+            width: 150px;
+        }
+        button:hover {
+            background-color: #5A0000;
+        }
+        footer {
+            background-color: #8B0000;
+            padding: 20px;
+            text-align: center;
+            color: white;
+            font-size: 16px;
+        }
+		input::placeholder,
+        textarea::placeholder {
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            color: #aaa;
+        }
+        input[type="text"], textarea {
+            font-family: Arial, sans-serif; /* Use the same font */
+            font-size: 16px; /* Same size for text */
+            font-weight: normal; /* Ensures consistency in font weight */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>
+            Health Home
+            <img src="/static/logo.png" alt="Health Home Logo">
+        </h1>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/my-page/">My Page</a>
+            <a href="/my-athletes/">My Athletes</a>
+            <a href="/messages-requests/">Messages/Requests</a>
+            <a href="/logout/">Log Out</a>
+        </nav>
+    </header>
+
+    <div class="content-wrapper">
+        <div class="container">
+            <h1>Goals for {{ athlete_email }}</h1>
+            <form id="set-goals-form" action="/save-athlete-goals/" method="POST">
+                <input type="hidden" name="athlete_email" value="{{ athlete_email }}">
+                <textarea name="goals" placeholder="Type your goals here..." required></textarea>
+                <button type="submit">Set Goals</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        © Health Home 2025
+    </footer>
+
+    <script>
+        document.getElementById('set-goals-form').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const form = event.target;
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert(result.message); // Display success message
+                    window.location.href = '/my-athletes/'; // Redirect to myAthletes.html
+                } else {
+                    alert("Error: " + (result.error || "Failed to set goals."));
+                }
+            } catch (error) {
+                alert("An unexpected error occurred.");
+                console.error("Error setting goals:", error);
+            }
+        });
+    </script>
+</body>
+</html>

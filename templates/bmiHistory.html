@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMI Calculation History</title>
+	<link rel="icon" type="image/png" href="/static/logo.png">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-image: url('/static/bmi.avif'); /* Reuse the same background image */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        header {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #8B0000;
+            color: white;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 32px;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+        }
+        header h1 img {
+            margin-left: 10px;
+            width: 50px;
+            height: 50px;
+        }
+        nav {
+            margin-left: auto;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 18px;
+        }
+        .hero {
+            flex-grow: 1;
+            text-align: center;
+            color: white;
+            padding: 20px;
+        }
+        .hero .text {
+			background-color: #B22222;
+			padding: 20px;
+			border-radius: 8px;
+			margin-top: 20px;
+			max-width: 800px;
+			margin-left: 0%; /* Moves the element 2% away from the left boundary */
+			margin-right: 0; /* Prevents auto-centering */
+			text-align: center;
+		}
+        .hero h1 {
+            font-size: 48px;
+            margin: 0;
+        }
+        canvas {
+            margin-top: 20px;
+            background-color: white;
+            border-radius: 8px;
+        }
+        footer {
+            background-color: #8B0000;
+            padding: 20px;
+            text-align: center;
+            color: white;
+            font-size: 16px;
+        }
+        #bmiChart-container {
+            width: 100%;
+            max-width: 800px; /* Optional: Limit the width */
+            max-height: 500px; /* Prevents it from growing infinitely */
+            margin: 0 auto; /* Center the graph */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>
+            Health Home
+            <img src="/static/logo.png" alt="Health Home Logo">
+        </h1>
+        <nav>
+            {% if 'user_id' in session %}
+                {% if session['role'] == 'gym-goer' %}
+					<a href="/">Home</a>
+					<a href="/bmi/">BMI</a>
+					<a href="/logs/">Logs</a>
+					<a href="/logout/">Log Out</a>
+				{% elif session['role'] == 'athlete' %}
+					<a href="/">Home</a>
+					<a href="/bmi/">BMI</a>
+                    <a href="/logs/">Logs</a>
+					<a href="/view-trainers/">View Trainers</a>
+					<a href="/goals/">Goals</a>
+					<a href="/messages/">Messages</a>
+                    <a href="/logout/">Log Out</a>
+				{% endif %}
+			{% endif %}
+        </nav>
+    </header>
+    <div class="hero">
+        <div class="text">
+            <h1>Your BMI Calculation History</h1>
+            <!-- Graph container -->
+            <div id="bmiChart-container">
+                <canvas id="bmiChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <footer>
+        © Health Home 2025
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Declare a global variable to store the chart instance
+        let bmiChartInstance = null;
+
+        async function renderBMIChart() {
+            try {
+                const response = await fetch('/bmi-history-data/');
+                const data = await response.json();
+
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+
+                // Prepare data for the graph
+                const labels = data.map(entry => new Date(entry.date).toLocaleDateString());
+                const bmiValues = data.map(entry => entry.bmi);
+
+                // Get the chart canvas context
+                const ctx = document.getElementById('bmiChart').getContext('2d');
+
+                // Destroy the existing chart instance if it exists
+                if (bmiChartInstance) {
+                    bmiChartInstance.destroy();
+                }
+
+                // Create a new chart instance
+                bmiChartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'BMI Over Time',
+                            data: bmiValues,
+                            borderColor: 'rgba(139, 0, 0, 0.8)',
+                            backgroundColor: 'rgba(139, 0, 0, 0.2)',
+                            borderWidth: 2,
+                            pointBackgroundColor: 'rgba(139, 0, 0, 1)',
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true, // Ensures a fixed aspect ratio
+                        aspectRatio: 2, // Width-to-height ratio for the chart
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Date'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'BMI'
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error fetching BMI history:', error);
+            }
+        }
+
+        // Load the chart once the page is loaded
+        document.addEventListener("DOMContentLoaded", renderBMIChart);
+    </script>
+</body>
+</html>

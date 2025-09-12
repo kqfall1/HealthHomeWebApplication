@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages</title>
+	<link rel="icon" type="image/png" href="/static/logo.png">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #8B0000;
+            color: white;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 32px;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+        }
+        header h1 img {
+            margin-left: 10px;
+            width: 50px;
+            height: 50px;
+        }
+        nav {
+            margin-left: auto;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 18px;
+        }
+        .content-wrapper {
+            background-image: url('/static/textPageBackground.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+			background-attachment: fixed; 
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            padding: 20px 20px;
+            background-color: #B22222;
+            color: white;
+            border-radius: 8px;
+            width: 75%;
+            min-height: 400px;
+            text-align: center;
+            margin: 20px 0 20px 19%;
+        }
+        .message-list {
+            text-align: left;
+            margin-top: 20px;
+            background-color: #fff;
+            color: #000;
+            border-radius: 8px;
+            padding: 10px;
+			margin-bottom: 30px;
+        }
+        .message-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ccc;
+            padding: 10px 0;
+        }
+        .message-item:last-child {
+            border-bottom: none;
+        }
+        .details {
+            flex-grow: 1;
+        }
+        footer {
+            background-color: #8B0000;
+            padding: 20px;
+            text-align: center;
+            color: white;
+            font-size: 16px;
+        }
+		.button {
+            background-color: #8B0000;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            width: 150px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .button:hover {
+            background-color: #5A0000;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>
+            Health Home
+            <img src="/static/logo.png" alt="Health Home Logo">
+        </h1>
+        <nav>
+			<a href="/">Home</a>
+            <a href="/bmi/">BMI</a>
+            <a href="/logs/">Logs</a>
+            <a href="/view-trainers/">View Trainers</a>
+            <a href="/goals/">Goals</a>
+            <a href="/logout/">Log Out</a>
+        </nav>
+    </header>
+
+    <div class="content-wrapper">
+        <div class="container">
+            <h1>Your Messages</h1>
+            <div class="message-list">
+                {% if messages %}
+                    {% for message in messages %}
+						<div class="message-item">
+						<div class="details">
+							<strong>From:</strong> {{ message['sender_email'] }}<br>
+							<strong>Message:</strong> {{ message['content'] }}<br>
+							<strong>Sent at:</strong> {{ message['sent_at'] }}
+						</div>
+							<form action="/reply-athlete/{{ message['id'] }}/" method="GET">
+								<button type="submit" class="button">Reply</button>
+							</form>
+						</div>
+					{% endfor %}
+                {% else %}
+                    <p>You have no messages at this time. Please check back later!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        © Health Home 2025
+    </footer>
+</body>
+</html>

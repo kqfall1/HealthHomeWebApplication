@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages/Requests</title>
+	<link rel="icon" type="image/png" href="/static/logo.png">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #8B0000;
+            color: white;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 32px;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+        }
+        header h1 img {
+            margin-left: 10px;
+            width: 50px;
+            height: 50px;
+        }
+        nav {
+            margin-left: auto;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 18px;
+        }
+        .content-wrapper {
+			background-image: url('/static/textPageBackground.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+			background-attachment: fixed; 
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            padding: 20px 20px; /* Adjusted padding for equal top and bottom spacing */
+            background-color: #B22222;
+            color: white;
+            border-radius: 8px;
+            width: 75%;
+            min-height: 400px;
+            text-align: center;
+            margin: 20px 0 20px 19%;
+        }
+        .message-request-list {
+            text-align: left;
+            margin-top: 20px;
+			margin-bottom: 30px;
+            background-color: #fff;
+            color: #000;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        .message-request-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ccc;
+            padding: 10px 0;
+        }
+        .message-request-item:last-child {
+            border-bottom: none;
+        }
+        .details {
+            flex-grow: 1;
+        }
+        .button-container {
+            display: flex;
+            gap: 10px;
+            margin-left: auto;
+        }
+        .button {
+            background-color: #8B0000;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            width: 150px;
+            height: 50px; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .button:hover {
+            background-color: #5A0000;
+        }
+        footer {
+            background-color: #8B0000;
+            padding: 20px;
+            text-align: center;
+            color: white;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>
+            Health Home
+            <img src="/static/logo.png" alt="Health Home Logo">
+        </h1>
+        <nav>
+            <a href="/">Home</a>
+			<a href="/my-page/">My Page</a>
+            <a href="/my-athletes/">My Athletes</a>
+            <a href="/logout/">Log Out</a>
+        </nav>
+    </header>
+
+    <div class="content-wrapper">
+        <div class="container">
+            <h1>Messages and Requests</h1>
+            <div class="message-request-list">
+                {% if messages_and_requests %}
+                    {% for item in messages_and_requests %}
+                        <div class="message-request-item">
+                            <div class="details">
+                                <strong>From:</strong> {{ item['from_user'] }}<br>
+                                <strong>Type:</strong> {{ item['type'] }}<br>
+                                {% if item['type'] == 'Request' %}
+                                    <strong>Status:</strong> {{ item['content'].capitalize() }}<br>
+                                {% else %}
+                                    <strong>Text:</strong> {{ item['content'] }}<br>
+                                {% endif %}
+								<strong>Sent at:</strong> {{ item['timestamp'] }}
+                            </div>
+                            <div class="button-container">
+                                {% if item['type'] == 'Request' and item['content'] == 'pending' %}
+                                    <button class="button accept-request" data-request-id="{{ item['id'] }}">Accept</button>
+                                    <button class="button decline-request" data-request-id="{{ item['id'] }}">Decline</button>
+                                {% elif item['type'] == 'Message' %}
+									<form action="/reply-trainer/{{ item['id'] }}/" method="GET">
+										<button type="submit" class="button">Reply</button>
+									</form>
+								{% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No messages or requests at this time. Please check back later!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <footer>
+        © Health Home 2025
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Handle "Accept Request" button click
+            const acceptButtons = document.querySelectorAll('.accept-request');
+            acceptButtons.forEach(button => {
+                button.addEventListener('click', async (event) => {
+                    const requestId = event.target.dataset.requestId;
+                    try {
+                        const response = await fetch(`/accept-request/${requestId}/`, { method: 'POST' });
+                        const result = await response.json();
+                        if (response.ok) {
+                            alert(result.message || 'Request accepted successfully!');
+                            location.reload();
+                        } else {
+                            alert(`Error: ${result.error || 'Unable to process request.'}`);
+                        }
+                    } catch (error) {
+                        console.error('Error accepting request:', error);
+                        alert('An unexpected error occurred.');
+                    }
+                });
+            });
+
+            // Handle "Decline Request" button click
+            const declineButtons = document.querySelectorAll('.decline-request');
+            declineButtons.forEach(button => {
+                button.addEventListener('click', async (event) => {
+                    const requestId = event.target.dataset.requestId;
+                    try {
+                        const response = await fetch(`/decline-request/${requestId}/`, { method: 'POST' });
+                        const result = await response.json();
+                        if (response.ok) {
+                            alert(result.message || 'Request declined successfully!');
+                            location.reload();
+                        } else {
+                            alert(`Error: ${result.error || 'Unable to process request.'}`);
+                        }
+                    } catch (error) {
+                        console.error('Error declining request:', error);
+                        alert('An unexpected error occurred.');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

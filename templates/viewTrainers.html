@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Trainers</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #8B0000;
+            color: white;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 32px;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+        }
+        header h1 img {
+            margin-left: 10px;
+            width: 50px;
+            height: 50px;
+        }
+        nav {
+            margin-left: auto;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 18px;
+        }
+        .content-wrapper {
+            background-image: url('/static/textPageBackground.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+			background-attachment: fixed; 
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            padding: 20px;
+            background-color: #B22222;
+            color: white;
+            border-radius: 8px;
+            width: 75%;
+            min-height: 400px;
+            text-align: center;
+            margin: 20px 0 20px 19%;
+        }
+        .trainer-list {
+            text-align: left;
+            margin-top: 20px;
+            background-color: #fff;
+            color: #000;
+            border-radius: 8px;
+            padding: 10px;
+			margin-bottom: 30px;
+        }
+        .trainer-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ccc;
+            padding: 10px 0;
+        }
+        .trainer-item:last-child {
+            border-bottom: none;
+        }
+        .trainer-details {
+            flex-grow: 1;
+        }
+        .button-container {
+            display: flex;
+            gap: 10px;
+            margin-left: auto;
+        }
+        .button {
+            background-color: #8B0000;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            width: 150px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .button:hover {
+            background-color: #5A0000;
+        }
+        footer {
+            background-color: #8B0000;
+            padding: 20px;
+            text-align: center;
+            color: white;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>
+            Health Home
+            <img src="/static/logo.png" alt="Health Home Logo">
+        </h1>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/bmi/">BMI</a>
+            <a href="/logs/">Logs</a>
+            <a href="/goals/">Goals</a>
+            <a href="/messages/">Messages</a>
+            <a href="/logout/">Log Out</a>
+        </nav>
+    </header>
+
+    <div class="content-wrapper">
+        <div class="container">
+            <h1>Trainers</h1>
+            <div class="trainer-list">
+                {% if trainers %}
+                    {% for trainer in trainers %}
+                        <div class="trainer-item">
+                            <div class="trainer-details">
+                                <strong>Full Name:</strong> {{ trainer['full_name'] }}<br>
+                                <strong>Credentials:</strong> {{ trainer['credentials'] }}<br>
+                                <strong>Training Style:</strong> {{ trainer['training_style'] }}
+                            </div>
+                            <div class="button-container">
+                                <!-- Message button -->
+                                <form action="/message-trainer/{{ trainer['id'] }}/" method="GET">
+									<button type="submit" class="button">Message</button>
+								</form>
+                                <!-- Request Training button for athletes not assigned to a trainer -->
+									{% if not athlete_has_mapping %}
+										<button class="button request-training-button" data-trainer-id="{{ trainer['id'] }}">Request Training</button>
+									{% endif %}
+                                <!-- De-assign button for athletes mapped to the trainer -->
+                                {% if athlete_has_mapping and athlete_trainer_id == trainer['id'] %}
+                                    <button class="button deassign-button" data-trainer-id="{{ trainer['id'] }}">De-assign</button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No trainers found at this time. Please check back later!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <footer>
+        © Health Home 2025
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add event listeners to De-assign buttons
+            const deassignButtons = document.querySelectorAll('.deassign-button');
+            deassignButtons.forEach(button => {
+                button.addEventListener('click', async (event) => {
+                    const trainerId = event.target.dataset.trainerId; // Extract trainer ID from data attribute
+
+                    try {
+                        const response = await fetch(`/deassign-trainer/${trainerId}/`, { method: 'POST' });
+                        const result = await response.json();
+
+                        if (response.ok) {
+                            alert(result.message || 'De-assignment successful!');
+                            location.reload(); // Reload the page to reflect changes
+                        } else {
+                            alert(`Error: ${result.error || 'Unable to perform de-assignment.'}`);
+                        }
+                    } catch (error) {
+                        console.error('Error during de-assignment:', error);
+                        alert('An unexpected error occurred.');
+                    }
+                });
+            });
+        });
+		
+    document.addEventListener('DOMContentLoaded', () => {
+        // Add event listeners to Request Training buttons
+        const requestTrainingButtons = document.querySelectorAll('.request-training-button');
+        requestTrainingButtons.forEach(button => {
+            button.addEventListener('click', async (event) => {
+                const trainerId = event.target.dataset.trainerId; // Extract trainer ID from data attribute
+
+                try {
+                    const response = await fetch(`/training-request/${trainerId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        alert(result.message || 'Training request sent successfully!');
+                        location.reload(); // Reload the page to reflect changes
+                    } else {
+                        const errorResult = await response.json();
+                        alert(`Error: ${errorResult.error || 'Unable to send training request.'}`);
+                    }
+                } catch (error) {
+                    console.error('Error during training request:', error);
+                    alert('An unexpected error occurred.');
+                }
+            });
+        });
+    });
+    </script>
+</body>
+</html>
